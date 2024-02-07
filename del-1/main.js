@@ -24,8 +24,8 @@ Colour.prototype.rgba = function () {
     return `rgba(${this.r},${this.g},${this.b},1)`;
 };
 
-function handleFormSubmit(event) {
-    event.preventDefault();
+function handleFormSubmit(e) {
+    e.preventDefault();
     const r = parseInt(rInput.value);
     const g = parseInt(gInput.value);
     const b = parseInt(bInput.value);
