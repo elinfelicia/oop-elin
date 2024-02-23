@@ -30,7 +30,7 @@ class Deck {
         }
     }
 }
-console.log(new Deck());
+
 class Player {
     constructor(name){
         this.playerName = name;
@@ -47,7 +47,12 @@ class Player {
         this.sortHand();
         throwPile.push(this.playerCards.pop());
         throwPile.push(this.playerCards.pop());
-    }
+    };
+
+    dealNewCards(newCards) {
+        this.playerCards = this.playerCards.concat(newCards);
+    };
+
 
 }
 
@@ -64,14 +69,32 @@ class Game {
         
         this.deck.shuffle();
         
+        // Deal initial cards to players
         this.players[0].playerCards = this.deck.cards.slice(0, 5);
-        this.players[1].playerCards = this.deck.cards.slice(6, 10);
-
-        this.deck = new Deck();
-        this.deck.cards = this.deck.cards.filter(card => {
-            return !this.players.some(player => player.playerCards.some(playerCard => playerCard.name === card.name && playerCard.suit === card.suit));
+        this.players[1].playerCards = this.deck.cards.slice(5, 10);
+        
+        // Remove dealt cards from the deck
+        this.deck.cards = this.deck.cards.slice(10);
+        
+        // Throw two cards from each player's hand into the throw pile
+        this.throwCards();
+        
+        // Deal two new cards to each player from the remaining deck
+        const newCardsForPlayerOne = this.deck.cards.splice(0, 2);
+        const newCardsForPlayerTwo = this.deck.cards.splice(0, 2);
+        this.players[0].dealNewCards(newCardsForPlayerOne);
+        this.players[1].dealNewCards(newCardsForPlayerTwo);
+        
+        // Sort the hands of each player
+        this.players.forEach(player => {
+            player.sortHand();
         });
+        
+        // Remove dealt cards from the deck
+        this.deck.cards = this.deck.cards.slice(4);
     }
+    
+    
     
     throwCards() {
         this.players.forEach(player => {
@@ -83,34 +106,47 @@ class Game {
 let newGame = new Game();
 
 newGame.start("Slim", "Luke");
+console.log(new Deck());
 
-console.log("Slim's hand:");
-newGame.players[0].playerCards.forEach(card => {
-    console.log(`${card.name} of ${card.suit}`);
-});
-console.log(`Total value: ${newGame.players[0].getTotalValue()}`);
-
-console.log("\nLuke's hand:");
-newGame.players[1].playerCards.forEach(card => {
-    console.log(`${card.name} of ${card.suit}`);
-});
-console.log(`Total value: ${newGame.players[1].getTotalValue()}`);
+newGame.players.forEach(player => {
+    console.log(`${player.playerName}'s hand: `);
+    player.playerCards.forEach(card => {
+        console.log(`${card.name} of ${card.suit}`);
+    });
+    console.log(`Total value: ${player.getTotalValue()} \n`);
+})
 
 console.log("\nRemaining Deck:");
 newGame.deck.cards.forEach(card => {
     console.log(`${card.name} of ${card.suit}`);
 });
 
-newGame.throwCards();
 
-console.log("\nSlim's hand:");
-newGame.players[0].playerCards.forEach(card => {
+console.log("Two lowest cards have been tossed, and two new dealt. \n Commence Round 2! \n");
+newGame.players.forEach(player => {
+    console.log(`${player.playerName}'s new hand: `);
+    player.playerCards.forEach(card => {
+        console.log(`${card.name} of ${card.suit}`);
+    });
+    console.log(`Total value: ${player.getTotalValue()} \n`);
+})
+
+console.log("\nRemaining Deck:");
+newGame.deck.cards.forEach(card => {
     console.log(`${card.name} of ${card.suit}`);
 });
-console.log(`Total value: ${newGame.players[0].getTotalValue()}`);
 
-console.log("\nLuke's hand:");
-newGame.players[1].playerCards.forEach(card => {
-    console.log(`${card.name} of ${card.suit}`);
-});
-console.log(`Total value: ${newGame.players[1].getTotalValue()}`);
+newGame.throwPile.push(...newGame.players[0].playerCards);
+newGame.throwPile.push(...newGame.players[1].playerCards);
+
+// Deal two new cards to each player
+const newCardsForPlayerOne = newGame.deck.cards.slice(0, 2);
+const newCardsForPlayerTwo = newGame.deck.cards.slice(2, 4);
+newGame.players[0].dealNewCards(newCardsForPlayerOne);
+newGame.players[1].dealNewCards(newCardsForPlayerTwo);
+
+// Remove dealt cards from the deck
+newGame.deck.cards = newGame.deck.cards.slice(4);
+
+console.log("\n Deck ready for new game \n");
+console.log(newGame.deck);
